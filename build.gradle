@@ -1,14 +1,14 @@
 buildscript {
-	ext {
-		springBootVersion = '1.4.4.RELEASE'
-	}
-	repositories {
-          maven { url "http://repo.spring.io/libs-snapshot" }
-	  mavenCentral()
-	}
-	dependencies {
-	  classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-	}
+  ext {
+    springBootVersion = '1.4.4.RELEASE'
+  }
+  repositories {
+    maven { url "http://repo.spring.io/libs-snapshot" }
+    mavenCentral()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+  }
 }
 
 apply plugin: 'java'
@@ -17,25 +17,26 @@ apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 ext {
-    springCloudFoundryServiceBrokerVersion = "1.0.0.BUILD-SNAPSHOT"
+  springCloudFoundryServiceBrokerVersion = "1.0.0.BUILD-SNAPSHOT"
 }
 
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
-    maven { url "http://repo.spring.io/libs-snapshot" }
+  mavenCentral()
+  maven { url "http://repo.spring.io/libs-snapshot" }
 }
 
 dependencies {
-    compile("org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:${springCloudFoundryServiceBrokerVersion}")
-    compile("org.springframework.boot:spring-boot-starter-data-mongodb")
-    testCompile(group: "org.springframework.cloud", name: "spring-cloud-cloudfoundry-service-broker", version: "${springCloudFoundryServiceBrokerVersion}", classifier: "tests")
-    testCompile("org.springframework.boot:spring-boot-starter-test")
+  compile "org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:${springCloudFoundryServiceBrokerVersion}"
+  compile 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+  testCompile "org.springframework.cloud:spring-cloud-cloudfoundry-service-broker:${springCloudFoundryServiceBrokerVersion}:tests"
+  testCompile 'org.springframework.boot:spring-boot-starter-test'
 }
 
 jar {
-    baseName = 'cloudfoundry-mongodb-service-broker'
-    version =  '0.1.0-SNAPSHOT'
+  baseName = 'cloudfoundry-mongodb-service-broker'
+  version = '0.1.0-SNAPSHOT'
 }
 
