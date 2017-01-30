@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.mongodb.IntegrationTestBase;
 import org.springframework.cloud.servicebroker.mongodb.exception.MongoServiceException;
 
-import java.util.List;
-
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.*;
 
