@@ -37,6 +37,5 @@ dependencies {
 
 jar {
   baseName = 'cloudfoundry-mongodb-service-broker'
-  version = '0.1.0-SNAPSHOT'
 }
 
