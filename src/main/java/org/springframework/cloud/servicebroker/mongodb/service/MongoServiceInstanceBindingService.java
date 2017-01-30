@@ -1,8 +1,6 @@
 package org.springframework.cloud.servicebroker.mongodb.service;
 
-import java.util.Collections;
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse;
@@ -12,8 +10,10 @@ import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindin
 import org.springframework.cloud.servicebroker.mongodb.model.ServiceInstanceBinding;
 import org.springframework.cloud.servicebroker.mongodb.repository.MongoServiceInstanceBindingRepository;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Mongo impl to bind services.  Binding a service does the following:
@@ -76,7 +76,7 @@ public class MongoServiceInstanceBindingService implements ServiceInstanceBindin
 		bindingRepository.delete(bindingId);
 	}
 
-	protected ServiceInstanceBinding getServiceInstanceBinding(String id) {
+	ServiceInstanceBinding getServiceInstanceBinding(String id) {
 		return bindingRepository.findOne(id);
 	}
 
