@@ -1,6 +1,6 @@
 buildscript {
   ext {
-    springBootVersion = '1.4.4.RELEASE'
+    springBootVersion = '1.5.3.RELEASE'
   }
   repositories {
     maven { url "http://repo.spring.io/libs-snapshot" }
@@ -12,8 +12,6 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
 
 ext {
