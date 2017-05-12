@@ -25,12 +25,15 @@ public class MongoConfig extends AbstractMongoConfiguration {
   @Value("${mongodb.port:27017}")
   private int port;
 
-  @Value("${mongodb.password:}")
+  @Value("${mongodb.user:root}")
+  private String username;
+
+  @Value("${mongodb.password:pass}")
   private String password;
 
   @Bean
   public MongoClient mongoClient() throws UnknownHostException {
-    MongoCredential credential = MongoCredential.createScramSha1Credential("root", "admin", password.toCharArray());
+    MongoCredential credential = MongoCredential.createScramSha1Credential(username, "admin", password.toCharArray());
     return new MongoClient(new ServerAddress(host, port), Collections.singletonList(credential));
   }
 

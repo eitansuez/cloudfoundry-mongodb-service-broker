@@ -19,13 +19,13 @@ import java.util.Map;
  * Mongo impl to bind services.  Binding a service does the following:
  * creates a new user in the database (currently uses a default pwd of "password"),
  * saves the ServiceInstanceBinding info to the Mongo repository.
- *  
+ *
  * @author sgreenberg@pivotal.io
  */
 @Service
 public class MongoServiceInstanceBindingService implements ServiceInstanceBindingService {
 
-	private MongoAdminService mongo; 
+	private MongoAdminService mongo;
 
 	private MongoServiceInstanceBindingRepository bindingRepository;
 
@@ -35,7 +35,7 @@ public class MongoServiceInstanceBindingService implements ServiceInstanceBindin
 		this.mongo = mongo;
 		this.bindingRepository = bindingRepository;
 	}
-	
+
 	@Override
 	public CreateServiceInstanceBindingResponse createServiceInstanceBinding(CreateServiceInstanceBindingRequest request) {
 
@@ -47,19 +47,16 @@ public class MongoServiceInstanceBindingService implements ServiceInstanceBindin
 			throw new ServiceInstanceBindingExistsException(serviceInstanceId, bindingId);
 		}
 
-		String database = serviceInstanceId;
-		String username = bindingId;
 		String password = "password";
-		
 
-		mongo.createUser(database, username, password);
-		
+		mongo.createUser(serviceInstanceId, bindingId, password);
+
 		Map<String, Object> credentials =
-				Collections.singletonMap("uri", mongo.getConnectionString(database, username, password));
+				Collections.singletonMap("uri", mongo.getConnectionString(serviceInstanceId, bindingId, password));
 
 		binding = new ServiceInstanceBinding(bindingId, serviceInstanceId, credentials, null, request.getBoundAppGuid());
 		bindingRepository.save(binding);
-		
+
 		return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 	}
 

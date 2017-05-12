@@ -2,6 +2,7 @@ package org.springframework.cloud.servicebroker.mongodb.repository;
 
 import static org.junit.Assert.assertEquals;
 
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.mongodb.IntegrationTestBase;
 import org.springframework.cloud.servicebroker.mongodb.fixture.ServiceInstanceBindingFixture;
 import org.junit.After;

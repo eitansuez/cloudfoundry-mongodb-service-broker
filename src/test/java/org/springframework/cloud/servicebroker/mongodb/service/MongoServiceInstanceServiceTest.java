@@ -2,6 +2,7 @@ package org.springframework.cloud.servicebroker.mongodb.service;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,42 +38,42 @@ public class MongoServiceInstanceServiceTest extends IntegrationTestBase {
 
 	@Autowired
 	private MongoClient client;
-	
+
 	@Mock
 	private MongoAdminService mongo;
 
 	@Mock
 	private MongoServiceInstanceRepository repository;
-	
+
 	@Mock
-	private DB db;
+	private MongoDatabase db;
 
 	@Mock
 	private ServiceDefinition serviceDefinition;
-	
+
 	private MongoServiceInstanceService service;
-	
+
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		
+
 		service = new MongoServiceInstanceService(mongo, repository);
 	}
-	
+
 	@After
 	public void cleanup() {
 		client.dropDatabase(DB_NAME);
 	}
-	
+
 	@Test
 	public void newServiceInstanceCreatedSuccessfully() throws Exception {
-		
+
 		when(repository.findOne(any(String.class))).thenReturn(null);
 		when(mongo.databaseExists(any(String.class))).thenReturn(false);
 		when(mongo.createDatabase(any(String.class))).thenReturn(db);
 
 		CreateServiceInstanceResponse response = service.createServiceInstance(buildCreateRequest());
-		
+
 		assertNotNull(response);
 		assertNull(response.getDashboardUrl());
 		assertFalse(response.isAsync());

@@ -1,11 +1,19 @@
 package org.springframework.cloud.servicebroker.mongodb.service;
 
-import com.mongodb.*;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
+import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.mongodb.exception.MongoServiceException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Utility class for manipulating a Mongo database.
@@ -14,8 +22,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MongoAdminService {
-
-  private static final String ADMIN_DB = "admin";
 
   private Logger logger = LoggerFactory.getLogger(MongoAdminService.class);
 
@@ -26,34 +32,31 @@ public class MongoAdminService {
     this.client = client;
   }
 
-  public boolean databaseExists(String databaseName) throws MongoServiceException {
+  boolean databaseExists(String databaseName) throws MongoServiceException {
     try {
-      return client.getDatabaseNames().contains(databaseName);
+      List<String> databaseNames = new ArrayList<>();
+      client.listDatabaseNames().into(databaseNames);
+      return databaseNames.contains(databaseName);
     } catch (MongoException e) {
       throw handleException(e);
     }
   }
 
-  public void deleteDatabase(String databaseName) throws MongoServiceException {
+  void deleteDatabase(String databaseName) throws MongoServiceException {
     try {
-      client.getDB(ADMIN_DB);
       client.dropDatabase(databaseName);
     } catch (MongoException e) {
       throw handleException(e);
     }
   }
 
-  public DB createDatabase(String databaseName) throws MongoServiceException {
+  MongoDatabase createDatabase(String databaseName) throws MongoServiceException {
     try {
-      DB db = client.getDB(databaseName);
+      MongoDatabase db = client.getDatabase(databaseName);
 
       // save into a collection to force DB creation.
-      DBCollection col = db.createCollection("foo", null);
-      BasicDBObject obj = new BasicDBObject();
-      obj.put("foo", "bar");
-      col.insert(obj);
-      // drop the collection so the db is empty
-//			col.drop();
+      db.createCollection("foo");
+      db.getCollection("foo").insertOne(new Document("foo", "bar"));
 
       return db;
     } catch (MongoException e) {
@@ -66,18 +69,16 @@ public class MongoAdminService {
     }
   }
 
-  public void createUser(String database, String username, String password) throws MongoServiceException {
+  void createUser(String database, String username, String password) throws MongoServiceException {
     try {
-      DB db = client.getDB(database);
-      BasicDBList roles = new BasicDBList();
-      roles.add("readWrite");
-      DBObject command = BasicDBObjectBuilder
-          .start("createUser", username)
-          .add("pwd", password)
-          .add("roles", roles)
-          .get();
-      CommandResult result = db.command(command);
-      if (!result.ok()) {
+      Document createUserCmd = new Document("createUser", username)
+          .append("pwd", password)
+          .append("roles", Collections.singletonList("readWrite"));
+
+      MongoDatabase db = client.getDatabase(database);
+      Document result = db.runCommand(createUserCmd);
+      boolean success = (result.getDouble("ok") == 1.0); // this is awful! i need to learn to interpret command results properly
+      if (!success) {
         MongoServiceException e = new MongoServiceException(result.toString());
         logger.warn(e.getLocalizedMessage());
         throw e;
@@ -87,16 +88,16 @@ public class MongoAdminService {
     }
   }
 
-  public void deleteUser(String database, String username) throws MongoServiceException {
+  void deleteUser(String database, String username) throws MongoServiceException {
     try {
-      DB db = client.getDB(database);
-      db.command(new BasicDBObject("dropUser", username));
+      MongoDatabase db = client.getDatabase(database);
+      db.runCommand(new Document("dropUser", username));
     } catch (MongoException e) {
       throw handleException(e);
     }
   }
 
-  public String getConnectionString(String database, String username, String password) {
+  String getConnectionString(String database, String username, String password) {
     return String.format("mongodb://%s:%s@%s/%s", username, password, getServerAddresses(), database);
   }
 
