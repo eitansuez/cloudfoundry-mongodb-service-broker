@@ -22,3 +22,7 @@ After building, you can push the broker app to Cloud Foundry or deploy it some o
 
 
 
+# To run integration tests
+
+Have a local mongodb running on the default port, with an admin user named 'root' and password 'pass'
+

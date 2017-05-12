@@ -4,9 +4,11 @@ import com.mongodb.MongoClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingDoesNotExistException;
 import org.springframework.cloud.servicebroker.exception.ServiceInstanceBindingExistsException;
@@ -14,13 +16,12 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBin
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.ServiceBindingResource;
-import org.springframework.cloud.servicebroker.mongodb.IntegrationTestBase;
 import org.springframework.cloud.servicebroker.mongodb.exception.MongoServiceException;
-import org.springframework.cloud.servicebroker.mongodb.fixture.ServiceInstanceBindingFixture;
-import org.springframework.cloud.servicebroker.mongodb.fixture.ServiceInstanceFixture;
+import org.springframework.cloud.servicebroker.mongodb.Fixtures;
 import org.springframework.cloud.servicebroker.mongodb.model.ServiceInstance;
 import org.springframework.cloud.servicebroker.mongodb.model.ServiceInstanceBinding;
 import org.springframework.cloud.servicebroker.mongodb.repository.MongoServiceInstanceBindingRepository;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 import java.util.Map;
@@ -34,8 +35,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.cloud.servicebroker.mongodb.Fixtures.DB_NAME;
 
-public class MongoServiceInstanceBindingServiceTest extends IntegrationTestBase {
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class MongoServiceInstanceBindingServiceTest {
 
 	@Autowired
 	private MongoClient client;
@@ -55,8 +59,8 @@ public class MongoServiceInstanceBindingServiceTest extends IntegrationTestBase 
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 		service = new MongoServiceInstanceBindingService(mongo, repository);
-		instance = ServiceInstanceFixture.getServiceInstance();
-		instanceBinding = ServiceInstanceBindingFixture.getServiceInstanceBinding();
+		instance = Fixtures.getServiceInstance();
+		instanceBinding = Fixtures.getServiceInstanceBinding();
 	}
 
 	@After
@@ -86,7 +90,7 @@ public class MongoServiceInstanceBindingServiceTest extends IntegrationTestBase 
 	public void serviceInstanceCreationFailsWithExistingInstance() throws Exception {
 
 		when(repository.findOne(any(String.class)))
-				.thenReturn(ServiceInstanceBindingFixture.getServiceInstanceBinding());
+				.thenReturn(Fixtures.getServiceInstanceBinding());
 
 		service.createServiceInstanceBinding(buildCreateRequest());
 	}
@@ -101,7 +105,7 @@ public class MongoServiceInstanceBindingServiceTest extends IntegrationTestBase 
 
 	@Test
 	public void successfullyRetrieveServiceInstanceBinding() {
-		ServiceInstanceBinding binding = ServiceInstanceBindingFixture.getServiceInstanceBinding();
+		ServiceInstanceBinding binding = Fixtures.getServiceInstanceBinding();
 		when(repository.findOne(any(String.class))).thenReturn(binding);
 
 		assertEquals(binding.getId(), service.getServiceInstanceBinding(binding.getId()).getId());
@@ -109,7 +113,7 @@ public class MongoServiceInstanceBindingServiceTest extends IntegrationTestBase 
 
 	@Test
 	public void serviceInstanceBindingDeletedSuccessfully() throws Exception {
-		ServiceInstanceBinding binding = ServiceInstanceBindingFixture.getServiceInstanceBinding();
+		ServiceInstanceBinding binding = Fixtures.getServiceInstanceBinding();
 		when(repository.findOne(any(String.class))).thenReturn(binding);
 
 		service.deleteServiceInstanceBinding(buildDeleteRequest());
@@ -120,7 +124,7 @@ public class MongoServiceInstanceBindingServiceTest extends IntegrationTestBase 
 
 	@Test(expected = ServiceInstanceBindingDoesNotExistException.class)
 	public void unknownServiceInstanceDeleteCallSuccessful() throws Exception {
-		ServiceInstanceBinding binding = ServiceInstanceBindingFixture.getServiceInstanceBinding();
+		ServiceInstanceBinding binding = Fixtures.getServiceInstanceBinding();
 
 		when(repository.findOne(any(String.class))).thenReturn(null);
 
